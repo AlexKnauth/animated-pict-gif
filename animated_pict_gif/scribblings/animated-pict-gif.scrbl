@@ -9,6 +9,8 @@
   ~hidden:
     import: animated_pict_gif open
 )
+@(def rhombus_pict_scrbl:
+    ModulePath'lib("rhombus/pict/scribblings/rhombus-pict.scrbl")')
 
 @title{animated_pict_gif}
 
@@ -17,4 +19,5 @@
 @docmodule(animated_pict_gif)
 
 A Rhombus library wrapper around @racketmodname(mrlib/gif),
-to write Rhombus @tech{animated picts} as animated GIF files.
+to write Rhombus @tech(~doc: rhombus_pict_scrbl){animated picts}
+as animated GIF files.
