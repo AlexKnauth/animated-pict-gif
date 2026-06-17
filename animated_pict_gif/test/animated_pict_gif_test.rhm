@@ -3,6 +3,7 @@
 import:
   pict open
   animated_pict_gif open
+  rhombus/runtime_path
 
 fun image_equal(a :: StaticPict, b :: StaticPict) :: Boolean:
   a.width == b.width
@@ -70,4 +71,43 @@ check_images:
        circ1.alpha(1 - (24 / 50.0)),
        circ1.alpha(1 - (36 / 50.0)),
        circ1.alpha(1 - (48 / 50.0))]
+
+runtime_path.def magic_move_1_actual: "magic_move_1_actual.gif"
+runtime_path.def magic_move_1_expect: "magic_move_1_expect.gif"
+
+runtime_path.def magic_move_2_actual: "magic_move_2_actual.gif"
+runtime_path.def magic_move_2_expect: "magic_move_2_expect.gif"
+
+expr.macro 'check_file $(actual_expr :: Term) $(expect_expr :: Term): $write_expr':
+  ~all_stx stx
+  ~op_stx chkf
+  let chk: Syntax.relocate('check', chkf)
+  'block:
+     let actual: $actual_expr
+     let expect: $expect_expr
+     when filesystem.file_exists(actual)
+     | filesystem.delete(actual)
+     $write_expr
+     $(Syntax.relocate_group(
+         '$chk:
+            filesystem.read_bytes(actual)
+            ~is_now filesystem.read_bytes(expect)',
+         stx))
+     when filesystem.file_exists(actual)
+       && filesystem.read_bytes(actual) is_now filesystem.read_bytes(expect)
+     | filesystem.delete(actual)'
+
+block:
+  def sq: square(~size: 18, ~fill: "lightblue")
+  def cr: circle(~size: 12, ~fill: "pink")
+  def tri: triangle(~width: 16, ~fill: "black")
+  def pre: beside(sq, cr).scale(1.5)
+  def post: beside(~sep: 5, cr, tri, sq)
+  def bg: rectangle(~width: 60, ~height: 30, ~fill: "white")
+  def magic_move_1: overlay(bg, magic_move(pre, post))
+  def magic_move_2: overlay(bg, magic_move(pre, post, ~other: #'fade))
+  check_file magic_move_1_actual magic_move_1_expect:
+    animated_pict_write_animated_gif(magic_move_1, 8, magic_move_1_actual)
+  check_file magic_move_2_actual magic_move_2_expect:
+    animated_pict_write_animated_gif(magic_move_2, 8, magic_move_2_actual)
 
