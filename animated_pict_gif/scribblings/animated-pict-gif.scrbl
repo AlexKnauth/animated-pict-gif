@@ -102,6 +102,19 @@ and @rhombus(#{gif-add-control}) from @racketmodname(file/gif).
 }
 
 @doc(
+  fun frame_bitmap(
+    p :: StaticPict,
+    ~kind: kind :: draw.Bitmap.Kind = draw.Bitmap.Kind.alpha,
+  ) :: draw.Bitmap
+){
+Converts @rhombus(p) into a bitmap.
+
+The @rhombus(kind) argument determines whether it includes
+color pixels and whether it includes an alpha channel to
+record the opacity of each pixel.
+}
+
+@doc(
   enum Disposal
   | any
   | keep
