@@ -1,6 +1,8 @@
 animated-pict-gif
 =================
 
+documentation: https://docs.racket-lang.org/animated-pict-gif/index.html
+
 ```
 import: animated_pict_gif
 ```
