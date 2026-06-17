@@ -6,11 +6,16 @@
 
 (define deps
   '("base"
+    "gui-lib"
     "rhombus-lib"))
 
 (define build-deps
-  '("racket-doc"
+  '("draw-lib"
+    "gui-doc"
+    "racket-doc"
     "rhombus"
+    "rhombus-draw"
+    "rhombus-pict"
     "rhombus-scribble-lib"
     "scribble-lib"))
 

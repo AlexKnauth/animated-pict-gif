@@ -1,2 +1,81 @@
 #lang rhombus/static/and_meta
 
+export:
+  animated_pict_write_animated_gif
+  animated_pict_frames
+  frames_write_animated_gif
+  Disposal
+
+import:
+  rhombus/draw
+  pict open
+  lib("mrlib/gif.rkt") as rkt
+
+enum Disposal
+| any
+| keep
+| #{restore-bg}
+| #{restore-prev}
+
+fun animated_pict_write_animated_gif(
+  animated_pict :: Pict,
+  delay_csec :: Int.in(0 ..= 4294967295),
+  filename :: PathString,
+  ~loop: loop :: Boolean = delay_csec && #true,
+  ~one_at_a_time: one_at_a_time :: Boolean = #false,
+  ~last_frame_delay: last_frame_delay :: maybe(Int.in(0 ..= 4294967295)) = #false,
+  ~disposal: disposal :: Disposal = Disposal.any,
+  ~kind: kind :: draw.Bitmap.Kind = draw.Bitmap.Kind.alpha,
+):
+  frames_write_animated_gif(
+    animated_pict_frames(animated_pict, delay_csec),
+    delay_csec,
+    filename,
+    ~loop,
+    ~one_at_a_time,
+    ~disposal,
+    ~kind,
+  )
+
+fun animated_pict_frames(
+  animated_pict :: Pict,
+  delay_csec :: Int.in(0 ..= 4294967295),
+) :: List.of(StaticPict):
+  for List:
+    each i: 0..animated_pict.duration
+    let extent_csec :: Real: animated_pict.epoch_extent(i) * 100
+    let extent_frac :: Real: extent_csec / delay_csec
+    let extent_frames :: Int: math.exact(math.ceiling(extent_frac))
+    each j: 0..extent_frames
+    animated_pict.snapshot(i, j / extent_frac)
+
+fun frames_write_animated_gif(
+  picts :: List.of(StaticPict),
+  delay_csec :: Int.in(0 ..= 4294967295),
+  filename :: PathString,
+  ~loop: loop :: Boolean = delay_csec && #true,
+  ~one_at_a_time: one_at_a_time :: Boolean = #false,
+  ~last_frame_delay: last_frame_delay :: maybe(Int.in(0 ..= 4294967295)) = #false,
+  ~disposal: disposal :: Disposal = Disposal.any,
+  ~kind: kind :: draw.Bitmap.Kind = draw.Bitmap.Kind.alpha,
+):
+  let bitmaps:
+    for PairList (p :: StaticPict: picts):
+      let bm:
+        draw.Bitmap(
+          ~kind: kind,
+          draw.Size(
+            math.exact(math.ceiling(p.width)),
+            math.exact(math.ceiling(p.height))))
+      let dc: bm.make_dc()
+      p.draw(dc)
+      bm.handle
+  rkt.#{write-animated-gif}(
+    bitmaps,
+    delay_csec,
+    filename,
+    #{#:loop?}: loop,
+    #{#:one-at-a-time?}: one_at_a_time,
+    #{#:last-frame-delay}: last_frame_delay,
+    #{#:disposal}: disposal,
+  )
