@@ -7,12 +7,14 @@
     animated_pict_gif meta_label: open
     lib("mrlib/gif.rkt").#{write-animated-gif} meta_label
     lib("file/gif.rkt").#{gif-add-control} meta_label)
+@(fun author(auth):
+    para(~style: #'author, auth))
 @(def rhombus_pict_scrbl:
     ModulePath'lib("rhombus/pict/scribblings/rhombus-pict.scrbl")')
 
 @title{animated_pict_gif}
 
-@//author{Alex Knauth}
+@author{Alex Knauth}
 
 @docmodule(animated_pict_gif)
 
