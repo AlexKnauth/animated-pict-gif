@@ -4,39 +4,15 @@ import:
   pict open
   animated_pict_gif open
 
-#//
-fun bytes_equal_within(as :: Bytes, bs :: Bytes, epsilon :: Real) :: Boolean:
-  as.length() == bs.length()
-    && (for all (a: as, b: bs):
-          math.magnitude(a - b) <= epsilon)
-
 fun image_equal(a :: StaticPict, b :: StaticPict) :: Boolean:
   a.width == b.width
     && a.height == b.height
     && (frame_bitmap(a).argb_pixels() is_now frame_bitmap(b).argb_pixels())
 
-#//
-fun image_equal_within(a :: StaticPict, b :: StaticPict, epsilon :: Real) :: Boolean:
-  a.width == b.width
-    && a.height == b.height
-    && bytes_equal_within(frame_bitmap(a).argb_pixels(),
-                          frame_bitmap(b).argb_pixels(),
-                          epsilon)
-
 fun images_equal(as :: List.of(StaticPict), bs :: List.of(StaticPict)) :: Boolean:
   as.length() == bs.length()
     && (for all (a: as, b: bs):
           image_equal(a, b))
-
-#//
-fun images_equal_within(
-  as :: List.of(StaticPict),
-  bs :: List.of(StaticPict),
-  epsilon :: Real,
-) :: Boolean:
-  as.length() == bs.length()
-    && (for all (a: as, b: bs):
-          image_equal_within(a, b, epsilon))
 
 expr.macro check_images
 | 'check_images:
@@ -48,21 +24,6 @@ expr.macro check_images
     Syntax.relocate_group(
       '$chk:
          images_equal($actual.group, $expected.group)
-         ~is #true',
-      stx)
-
-#//
-expr.macro check_images_within
-| 'check_images_within:
-     $(actual :: expr_meta.Parsed)
-     ~is $(expected :: expr_meta.Parsed)
-     ~within $(epsilon :: expr_meta.Parsed)':
-    ~all_stx stx
-    ~op_stx chkimgs
-    let chk: Syntax.relocate('check', chkimgs)
-    Syntax.relocate_group(
-      '$chk:
-         images_equal_within($actual.group, $expected.group, $epsilon.group)
          ~is #true',
       stx)
 
@@ -100,18 +61,13 @@ check_images:
 
 // TODO: test one_at_a_time and switch, once I understand what's going on there
 
-def fade_out1: animate(fun (n): circ1.alpha(1-n))
+def fade_out1: animate(fun (n): circ1.alpha(1-n), ~bend: values)
 
-// TODO: these look very visually similar but the numbers are way off...
-// maybe pixels with very high transparency can have very different rgb
-// but still look the same, so... maybe distance within a color space?
-#//
-check_images_within:
+check_images:
   animated_pict_frames(fade_out1, 12)
   ~is [circ1.alpha(1 - (0 / 50.0)),
        circ1.alpha(1 - (12 / 50.0)),
        circ1.alpha(1 - (24 / 50.0)),
        circ1.alpha(1 - (36 / 50.0)),
        circ1.alpha(1 - (48 / 50.0))]
-  ~within 254
 
