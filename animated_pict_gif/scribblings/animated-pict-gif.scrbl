@@ -16,6 +16,8 @@
 
 @author{Alex Knauth}
 
+source code: @url("https://github.com/AlexKnauth/animated-pict-gif")
+
 @docmodule(animated_pict_gif)
 
 A Rhombus library wrapper around @racketmodname(mrlib/gif),
