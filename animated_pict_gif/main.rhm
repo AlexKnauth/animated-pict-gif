@@ -4,6 +4,7 @@ export:
   animated_pict_write_animated_gif
   animated_pict_frames
   frames_write_animated_gif
+  frame_bitmap
   Disposal
 
 import:
@@ -44,10 +45,12 @@ fun animated_pict_frames(
   for List:
     each i: 0..animated_pict.duration
     let extent_csec :: Real: animated_pict.epoch_extent(i) * 100
-    let extent_frac :: Real: extent_csec / delay_csec
-    let extent_frames :: Int: math.exact(math.ceiling(extent_frac))
+    let extent_frames :: Int:
+      if delay_csec .= 0 | 1 | 1 + math.exact(math.floor(extent_csec / delay_csec))
     each j: 0..extent_frames
-    animated_pict.snapshot(i, j / extent_frac)
+    let n:
+      if extent_csec .= 0 | 0 | ((j * delay_csec) / extent_csec)
+    animated_pict.snapshot(i, n)
 
 fun frames_write_animated_gif(
   picts :: List.of(StaticPict),
@@ -61,15 +64,7 @@ fun frames_write_animated_gif(
 ):
   let bitmaps:
     for PairList (p :: StaticPict: picts):
-      let bm:
-        draw.Bitmap(
-          ~kind: kind,
-          draw.Size(
-            math.exact(math.ceiling(p.width)),
-            math.exact(math.ceiling(p.height))))
-      let dc: bm.make_dc()
-      p.draw(dc)
-      bm.handle
+      frame_bitmap(p, ~kind: kind).handle
   rkt.#{write-animated-gif}(
     bitmaps,
     delay_csec,
@@ -79,3 +74,17 @@ fun frames_write_animated_gif(
     #{#:last-frame-delay}: last_frame_delay,
     #{#:disposal}: disposal,
   )
+
+fun frame_bitmap(
+  p :: StaticPict,
+  ~kind: kind :: draw.Bitmap.Kind = draw.Bitmap.Kind.alpha,
+) :: draw.Bitmap:
+  let bm:
+    draw.Bitmap(
+      ~kind: kind,
+      draw.Size(
+        math.exact(math.ceiling(p.width)),
+        math.exact(math.ceiling(p.height))))
+  let dc: bm.make_dc()
+  p.draw(dc)
+  bm
