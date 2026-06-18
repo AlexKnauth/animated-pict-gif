@@ -27,3 +27,18 @@ The `delay_csec` argument is the amount of time in 1/100ths
 of a second to wait between frames.
 If `loop` is `#true`, then the GIF is marked as a looping
 animation.
+
+```
+def sq: square(~size: 18, ~fill: "lightblue")
+def cr: circle(~size: 12, ~fill: "pink")
+def tri: triangle(~width: 16, ~fill: "black")
+def pre: beside(sq, cr).scale(1.5)
+def post: beside(~sep: 5, cr, tri, sq)
+def bg: rectangle(~width: 60, ~height: 30, ~fill: "white")
+animated_pict_write_animated_gif(
+  overlay(bg, magic_move(pre, post, ~other: #'fade)),
+  8,
+  "magic_move_fade.gif")
+```
+
+![magic_move_fade.gif](https://github.com/AlexKnauth/animated-pict-gif/blob/main/animated_pict_gif/scribblings/magic_move_fade.gif?raw=true)
