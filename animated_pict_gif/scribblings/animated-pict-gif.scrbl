@@ -20,10 +20,12 @@
                 ...':
     'block:
        let filename: $filename_expr
+       /*
        when filesystem.file_exists(filename)
        | filesystem.delete(filename)
        $write_expr
        ...
+       */
        [rhombusblock(
           $write_expr,
           ...),
