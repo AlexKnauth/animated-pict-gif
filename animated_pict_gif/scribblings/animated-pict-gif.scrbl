@@ -7,7 +7,7 @@
     rhombus/runtime_path
     pict: open
     pict meta_label: open
-    animated_pict_gif: open
+    //animated_pict_gif: open
     animated_pict_gif meta_label: open
     lib("mrlib/gif.rkt").#{write-animated-gif} meta_label
     lib("file/gif.rkt").#{gif-add-control} meta_label)
